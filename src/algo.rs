@@ -190,10 +190,6 @@ impl Forest {
 
         // If this is a leaf node we can skip a lot of this function in some cases
         if self.children[node].is_empty() {
-            if node_size.width.is_defined() && node_size.height.is_defined() {
-                return ComputeResult { size: node_size.map(|s| s.or_else(0.0)) };
-            }
-
             if let Some(ref measure) = self.nodes[node].measure {
                 let result = match measure {
                     MeasureFunc::Raw(measure) => ComputeResult { size: measure(node_size) },
@@ -203,6 +199,8 @@ impl Forest {
                 *self.cache(node, main_size) =
                     Some(result::Cache { node_size, parent_size, perform_layout, result: result.clone() });
                 return result;
+            } else if node_size.width.is_defined() && node_size.height.is_defined() {
+                return ComputeResult { size: node_size.map(|s| s.or_else(0.0)) };
             }
 
             return ComputeResult {
